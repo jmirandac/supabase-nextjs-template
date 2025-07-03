@@ -45,12 +45,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     const productName = process.env.NEXT_PUBLIC_PRODUCTNAME;
 
-    const navigation = [
+    const baseNavigation = [
         { name: 'Inicio', href: '/app', icon: Home },
         { name: 'Archivos', href: '/app/storage', icon: Files },
         { name: 'Tareas', href: '/app/table', icon: LucideListTodo },
         { name: 'Configuración', href: '/app/user-settings', icon: User },
     ];
+
+    const navigation = [...baseNavigation];
+    if (user?.role === 'ROLE_ADMIN') {
+        navigation.splice(3, 0, { name: 'Admin', href: '/app/admin', icon: User });
+    }
 
     const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
 
