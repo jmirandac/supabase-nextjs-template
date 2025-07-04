@@ -17,11 +17,11 @@ export default function RootLayout({
 }>) {
   let theme = process.env.NEXT_PUBLIC_THEME
   if(!theme) {
-    theme = "theme-sass3"
+    theme = "theme-sass"
   }
   const gaID = process.env.NEXT_PUBLIC_GOOGLE_TAG;
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
     <body className={theme}>
       {children}
       <Analytics />

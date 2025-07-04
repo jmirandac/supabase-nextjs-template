@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import {usePathname, useRouter} from 'next/navigation';
 import {
@@ -17,6 +17,7 @@ import { createSPASassClient } from "@/lib/supabase/client";
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const [isUserDropdownOpen, setUserDropdownOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
     const pathname = usePathname();
     const router = useRouter();
 
@@ -45,13 +46,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     const productName = process.env.NEXT_PUBLIC_PRODUCTNAME;
 
     const navigation = [
-        { name: 'Homepage', href: '/app', icon: Home },
-        { name: 'Example Storage', href: '/app/storage', icon: Files },
-        { name: 'Example Table', href: '/app/table', icon: LucideListTodo },
-        { name: 'User Settings', href: '/app/user-settings', icon: User },
+        { name: 'Inicio', href: '/app', icon: Home },
+        { name: 'Archivos', href: '/app/storage', icon: Files },
+        { name: 'Tareas', href: '/app/table', icon: LucideListTodo },
+        { name: 'Configuración', href: '/app/user-settings', icon: User },
     ];
 
     const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
+
+    // Close user dropdown when clicking outside
+    useEffect(() => {
+        if (!isUserDropdownOpen) return;
+        function handleClickOutside(event: MouseEvent) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setUserDropdownOpen(false);
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isUserDropdownOpen]);
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -89,6 +104,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                                         ? 'bg-primary-50 text-primary-600'
                                         : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                                 }`}
+                                onClick={() => {
+                                    if (isSidebarOpen) setSidebarOpen(false);
+                                }}
                             >
                                 <item.icon
                                     className={`mr-3 h-5 w-5 ${
@@ -127,7 +145,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                         </button>
 
                         {isUserDropdownOpen && (
-                            <div className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg border">
+                            <div
+                                ref={dropdownRef}
+                                className="absolute right-0 mt-2 w-64 bg-white rounded-md shadow-lg border"
+                            >
                                 <div className="p-2 border-b border-gray-100">
                                     <p className="text-xs text-gray-500">Signed in as</p>
                                     <p className="text-sm font-medium text-gray-900 truncate">
